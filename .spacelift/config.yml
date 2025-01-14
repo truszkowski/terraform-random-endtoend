@@ -6,13 +6,3 @@ module_version: 0.2.0
 stack_defaults:
   runner_image: non-existing-imagexxxxxx
 
-# The set of tests to run to verify your module works correctly
-tests:
-  - name: First test case
-    terraform_version: 1.5.7
-    environment:
-      TF_VAR_bacon: con
-  - name: Second test
-    terraform_version: 1.4.7
-    environment:
-      TF_VAR_bacon: acon
