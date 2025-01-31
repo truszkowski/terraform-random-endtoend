@@ -7,6 +7,12 @@ terraform {
   }
 }
 
+resource "spacelift_mounted_file" "core-kubeconfig" {
+  stack_id      = "tofuone"
+  relative_path = "test-file"
+  content       = filebase64("${path.module}/xyz")
+}
+
 variable "length" {
   default = 16
   type = number
