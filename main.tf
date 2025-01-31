@@ -4,6 +4,11 @@ terraform {
       source = "hashicorp/random"
       version = "3.6.0"
     }
+
+    spacelift = {
+      source = "spacelift-io/spacelift"
+      version = "1.19.1"
+    }
   }
 }
 
