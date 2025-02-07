@@ -5,11 +5,3 @@ module_version: 0.2.0
 
 stack_defaults:
   runner_image: non-existing-imagexxxxxx
-
-stacks:
-    # The key of is the immutable slug of your stack
-    # which you will find in the URL.
-    tf-test2: &shared
-        before_apply:
-            - hostname
-        terraform_version: 1.6.3
