@@ -5,3 +5,4 @@ module_version: 0.2.0
 
 stack_defaults:
   runner_image: non-existing-imagexxxxxx
+  opentofu_version: "~> 1.7.0"
