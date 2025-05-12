@@ -18,10 +18,22 @@ variable "length" {
   description = "Length of a secret"
 }
 
+resource "null_resource" "always_run" {
+  triggers = {
+    timestamp = "${timestamp()}"
+  }
+}
+
 resource "random_password" "password" {
   length           = var.length
   special          = true
   override_special = "!#$%&*()-_=+[]{}<>:?"
+    lifecycle {
+    replace_triggered_by = [
+      null_resource.always_run
+    ]
+  }
+  
 }
 
 output "password" {
