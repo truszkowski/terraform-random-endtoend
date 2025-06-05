@@ -23,6 +23,7 @@ RUN apk add --update --virtual .deps --no-cache gnupg && \
     && cd /opt/workspace \
     && terraform init \
     && cp -r .terraform/providers/* /opt/.providers-cache \
+    && chmod -R 777 /opt/.providers-cache \
     && rm -rf .terraform \
     && terraform init -plugin-dir=/opt/.providers-cache
 
@@ -31,4 +32,4 @@ FROM public.ecr.aws/spacelift/runner-terraform:latest
 WORKDIR /opt/workspace
 
 COPY --from=builder /opt/.providers-cache /opt/.providers-cache
-RUN chmod -R 777 /opt/.providers-cache
+
