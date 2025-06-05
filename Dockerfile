@@ -30,6 +30,12 @@ RUN apk add --update --virtual .deps --no-cache gnupg && \
 FROM public.ecr.aws/spacelift/runner-terraform:latest
 
 WORKDIR /opt/workspace
+USER root
 
 COPY --from=builder /opt/.providers-cache /opt/.providers-cache
 
+RUN chown -R spacelift:spacelift /opt/.providers-cache \
+    && chmod -R 777 /opt/.providers-cache
+
+
+USER spacelift
