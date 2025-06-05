@@ -31,3 +31,4 @@ FROM public.ecr.aws/spacelift/runner-terraform:latest
 WORKDIR /opt/workspace
 
 COPY --from=builder /opt/.providers-cache /opt/.providers-cache
+RUN chmod -R 777 /opt/.providers-cache
