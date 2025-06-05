@@ -7,25 +7,20 @@ ADD main.tf /opt/workspace/main.tf
 
 
 
-RUN apk add --update --virtual .deps --no-cache gnupg && \
-    cd /tmp && \
-    wget https://releases.hashicorp.com/terraform/1.5.7/terraform_1.5.7_linux_amd64.zip && \
-    wget https://releases.hashicorp.com/terraform/1.5.7/terraform_1.5.7_SHA256SUMS && \
-    wget https://releases.hashicorp.com/terraform/1.5.7/terraform_1.5.7_SHA256SUMS.sig && \
-    wget -qO- https://www.hashicorp.com/.well-known/pgp-key.txt | gpg --import && \
-    gpg --verify terraform_1.5.7_SHA256SUMS.sig terraform_1.5.7_SHA256SUMS && \
-    grep terraform_1.5.7_linux_amd64.zip terraform_1.5.7_SHA256SUMS | sha256sum -c && \
-    unzip /tmp/terraform_1.5.7_linux_amd64.zip -d /tmp && \
-    mv /tmp/terraform /usr/local/bin/terraform && \
-    rm -f /tmp/terraform_1.5.7_linux_amd64.zip terraform_1.5.7_SHA256SUMS 1.5.7/terraform_1.5.7_SHA256SUMS.sig && \
-    apk del .deps \
-    && mkdir -p /opt/.providers-cache \
-    && cd /opt/workspace \
-    && terraform init \
-    && cp -r .terraform/providers/* /opt/.providers-cache \
-    && chmod -R 777 /opt/.providers-cache \
-    && rm -rf .terraform \
-    && terraform init -plugin-dir=/opt/.providers-cache
+RUN apk add --update --virtual .deps --no-cache gnupg curl
+RUN cd /tmp
+RUN curl --proto '=https' --tlsv1.2 -fsSL https://get.opentofu.org/install-opentofu.sh -o install-opentofu.sh
+RUN chmod +x install-opentofu.sh
+RUN ./install-opentofu.sh --install-method apk
+RUN mkdir -p /opt/.providers-cache
+RUN cd /opt/workspace
+RUN tofu init
+RUN cp -r .terraform/providers/* /opt/.providers-cache
+RUN mkdir -p /opt/.providers-cache/registry.terraform.io
+RUN cp -r /opt/.providers-cache/registry.opentofu.org/* /opt/.providers-cache/registry.terraform.io
+RUN chmod -R 777 /opt/.providers-cache
+RUN rm -rf .terraform
+RUN tofu init -plugin-dir=/opt/.providers-cache
 
 FROM public.ecr.aws/spacelift/runner-terraform:latest
 
