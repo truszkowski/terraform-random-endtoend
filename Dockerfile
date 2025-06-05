@@ -1,24 +1,33 @@
-FROM ubuntu:24.04 AS builder
+FROM public.ecr.aws/spacelift/runner-terraform:latest AS builder
 
-WORKDIR /home/ubuntu/workspace
-ADD main.tf main.tf
+USER root
 
-RUN apt-get update && apt-get install -y \
-    curl \
-    unzip \
-    gnupg \
-    software-properties-common \
-    && curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add - \
-    && apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" \
-    && apt-get update && apt-get install -y terraform \
-    && mkdir -p /home/ubuntu/.providers-cache \
+WORKDIR /opt/workspace
+ADD main.tf /opt/workspace/main.tf
+
+
+
+RUN apk add --update --virtual .deps --no-cache gnupg && \
+    cd /tmp && \
+    wget https://releases.hashicorp.com/terraform/1.5.7/terraform_1.5.7_linux_amd64.zip && \
+    wget https://releases.hashicorp.com/terraform/1.5.7/terraform_1.5.7_SHA256SUMS && \
+    wget https://releases.hashicorp.com/terraform/1.5.7/terraform_1.5.7_SHA256SUMS.sig && \
+    wget -qO- https://www.hashicorp.com/.well-known/pgp-key.txt | gpg --import && \
+    gpg --verify terraform_1.5.7_SHA256SUMS.sig terraform_1.5.7_SHA256SUMS && \
+    grep terraform_1.5.7_linux_amd64.zip terraform_1.5.7_SHA256SUMS | sha256sum -c && \
+    unzip /tmp/terraform_1.5.7_linux_amd64.zip -d /tmp && \
+    mv /tmp/terraform /usr/local/bin/terraform && \
+    rm -f /tmp/terraform_1.5.7_linux_amd64.zip terraform_1.5.7_SHA256SUMS 1.5.7/terraform_1.5.7_SHA256SUMS.sig && \
+    apk del .deps \
+    && mkdir -p /opt/.providers-cache \
+    && cd /opt/workspace \
     && terraform init \
-    && cp -r .terraform/providers/* /home/ubuntu/.providers-cache \
+    && cp -r .terraform/providers/* /opt/.providers-cache \
     && rm -rf .terraform \
-    && terraform init -plugin-dir=/home/ubuntu/.providers-cache
+    && terraform init -plugin-dir=/opt/.providers-cache
 
-FROM ubuntu:24.04
+FROM public.ecr.aws/spacelift/runner-terraform:latest
 
-WORKDIR /home/ubuntu/workspace
+WORKDIR /opt/workspace
 
-COPY --from=builder /home/ubuntu/.providers-cache /home/ubuntu/.providers-cache
+COPY --from=builder /opt/.providers-cache /opt/.providers-cache
