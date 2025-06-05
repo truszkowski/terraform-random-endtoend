@@ -9,6 +9,10 @@ terraform {
       source = "spacelift-io/spacelift"
       version = "1.19.1"
     }
+    null = {
+      source = "hashicorp/null"
+      version = "3.2.4"
+    }
   }
 }
 
